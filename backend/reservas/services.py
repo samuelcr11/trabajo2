@@ -61,12 +61,20 @@ def cancel_reservation(reservation_id: str):
     db.collection('reservas').document(reservation_id).update({'estado': 'cancelada'})
 
 
+def _parse_time_string(time_str: str):
+    """Convierte string ISO time a objeto time para comparación."""
+    if isinstance(time_str, str):
+        return time_str[:5]  # Retorna HH:MM
+    return str(time_str)[:5]
+
+
 def validate_reservation(data: dict, reservation_id: str = None):
     db = get_firestore_client()
     fecha = data['fecha']
-    inicio = data['hora_inicio']
-    fin = data['hora_fin']
+    inicio = _parse_time_string(data['hora_inicio'])
+    fin = _parse_time_string(data['hora_fin'])
     recurso_id = data['recurso_id']
+    
     query = db.collection('reservas').where('recurso_id', '==', recurso_id).where('fecha', '==', fecha)
     for doc in query.stream():
         reserva = doc.to_dict()
@@ -74,8 +82,17 @@ def validate_reservation(data: dict, reservation_id: str = None):
             continue
         if reserva.get('estado') == 'cancelada':
             continue
-        if not (fin <= reserva['hora_inicio'] or inicio >= reserva['hora_fin']):
-            raise ValueError('El recurso ya está reservado en ese horario.')
+        
+        # Parsear horas de la reserva existente
+        hora_inicio_existente = _parse_time_string(reserva.get('hora_inicio', ''))
+        hora_fin_existente = _parse_time_string(reserva.get('hora_fin', ''))
+        
+        # Verificar solapamiento: no hay conflicto si:
+        # - Nueva reserva termina antes o al mismo tiempo que la existente comienza: fin <= hora_inicio_existente
+        # - Nueva reserva comienza después o al mismo tiempo que la existente termina: inicio >= hora_fin_existente
+        # Si ninguna de esas condiciones es verdadera, hay conflicto.
+        if not (fin <= hora_inicio_existente or inicio >= hora_fin_existente):
+            raise ValueError(f'El recurso ya está reservado en ese horario ({hora_inicio_existente}-{hora_fin_existente}).')
 
 
 def get_user_history(user_id: str):
