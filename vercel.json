@@ -23,12 +23,5 @@
       "src": "/(.*)",
       "dest": "api/index.py"
     }
-  ],
-  "env": {
-    "FIREBASE_API_KEY": "@firebase_api_key",
-    "FIREBASE_PROJECT_ID": "@firebase_project_id",
-    "DJANGO_SECRET_KEY": "@django_secret_key",
-    "DJANGO_DEBUG": "0",
-    "PYTHONUNBUFFERED": "1"
-  }
+  ]
 }
