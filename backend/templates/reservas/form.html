@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+    <h1>{{ title }}</h1>
+</div>
+<section class="card form-card">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="button primary">Guardar reserva</button>
+        <a class="button secondary" href="/reservas/">Volver</a>
+    </form>
+</section>
+{% endblock %}

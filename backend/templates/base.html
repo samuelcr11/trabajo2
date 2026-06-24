@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reservas de Recursos</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <header class="app-header">
+        <div class="brand">
+            <a href="/dashboard/">Reservas de Recursos</a>
+        </div>
+        <nav class="app-nav">
+            {% if request.session.is_authenticated %}
+                {% if request.session.user.rol == 'administrador' %}
+                    <a href="/dashboard/">Dashboard</a>
+                {% endif %}
+                <a href="/recursos/">Recursos</a>
+                <a href="/reservas/">Reservas</a>
+                <a href="/historial/">Historial</a>
+                <a href="/perfil/">Perfil</a>
+                <a href="/salir/" class="button secondary">Salir</a>
+            {% else %}
+                <a href="/">Login</a>
+                <a href="/registro/">Registro</a>
+            {% endif %}
+        </nav>
+    </header>
+    <main class="container">
+        {% if messages %}
+            <div class="alerts">
+                {% for message in messages %}
+                    <div class="alert {{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+    <footer class="footer">
+        <p>© 2026 Sistema de Reservas de Recursos</p>
+    </footer>
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>

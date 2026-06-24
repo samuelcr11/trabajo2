@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+    <h1>Perfil de Usuario</h1>
+</div>
+<section class="card form-card">
+    <form>
+        {{ form.as_p }}
+        <a class="button secondary" href="/dashboard/">Volver</a>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+    <h1>Historial de Reservas</h1>
+    <p>Revisa tus reservas anteriores y actuales.</p>
+</div>
+<ul class="history-list">
+    {% for reserva in historial %}
+        <li class="history-item">
+            <strong>{{ reserva.fecha }}</strong> · {{ reserva.hora_inicio }} - {{ reserva.hora_fin }} · <span>{{ reserva.estado }}</span>
+            <p>Recurso: {{ reserva.recurso_id }}</p>
+        </li>
+    {% empty %}
+        <li>No tienes reservas registradas.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

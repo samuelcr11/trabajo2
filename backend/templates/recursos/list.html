@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-header">
+    <h1>Gestión de Recursos</h1>
+    <div class="toolbar">
+        <form class="search-form" method="get">
+            <input type="search" name="search" value="{{ search }}" placeholder="Buscar recurso" />
+            <select name="tipo">
+                <option value="">Tipo</option>
+                <option value="sala" {% if tipo == 'sala' %}selected{% endif %}>Sala</option>
+                <option value="laboratorio" {% if tipo == 'laboratorio' %}selected{% endif %}>Laboratorio</option>
+                <option value="equipo" {% if tipo == 'equipo' %}selected{% endif %}>Equipo</option>
+                <option value="proyector" {% if tipo == 'proyector' %}selected{% endif %}>Proyector</option>
+            </select>
+            <select name="disponible">
+                <option value="">Disponibilidad</option>
+                <option value="si" {% if disponibilidad == 'si' %}selected{% endif %}>Solo disponibles</option>
+            </select>
+            <button type="submit" class="button secondary">Filtrar</button>
+        </form>
+        {% if request.session.user.rol == 'administrador' %}
+            <a class="button primary" href="/recursos/nuevo/">Nuevo recurso</a>
+        {% endif %}
+    </div>
+</div>
+<div class="grid list-grid">
+    {% for recurso in recursos %}
+        <article class="card resource-card">
+            <div class="resource-image" style="background-image: url('{{ recurso.imagen|default:'/static/img/placeholder.png' }}')"></div>
+            <div class="resource-body">
+                <h3>{{ recurso.nombre }}</h3>
+                <p>{{ recurso.descripcion }}</p>
+                <span class="tag">{{ recurso.tipo }}</span>
+                <span class="status">{{ recurso.estado }}</span>
+                <div class="actions">
+                    <a href="/recursos/{{ recurso.id }}/">Ver</a>
+                    {% if request.session.user.rol == 'administrador' %}
+                        <a href="/recursos/{{ recurso.id }}/editar/">Editar</a>
+                    {% endif %}
+                </div>
+            </div>
+        </article>
+    {% empty %}
+        <p>No hay recursos que coincidan con el filtro.</p>
+    {% endfor %}
+</div>
+{% endblock %}

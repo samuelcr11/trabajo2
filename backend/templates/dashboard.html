@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="page-header">
+    <h1>Panel Administrativo</h1>
+    <p>Visión general de recursos, usuarios y reservas.</p>
+</div>
+<div class="grid cards">
+    <div class="card green">
+        <h2>{{ metrics.total_recursos }}</h2>
+        <p>Recursos totales</p>
+    </div>
+    <div class="card blue">
+        <h2>{{ metrics.total_usuarios }}</h2>
+        <p>Usuarios registrados</p>
+    </div>
+    <div class="card light">
+        <h2>{{ metrics.total_reservas }}</h2>
+        <p>Reservas totales</p>
+    </div>
+    <div class="card gray">
+        <h2>{{ metrics.reservas_activas }}</h2>
+        <p>Reservas activas</p>
+    </div>
+</div>
+<section class="card chart-card">
+    <h2>Recursos más utilizados</h2>
+    <canvas id="resourceChart"></canvas>
+</section>
+<script>
+const chartLabels = {{ chart_labels|safe }};
+const chartData = {{ chart_data|safe }};
+</script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}
