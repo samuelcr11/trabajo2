@@ -2,158 +2,184 @@
 
 ## Descripción
 
-Proyecto académico de un sistema de reservas completo para gestionar recursos como salas, laboratorios, equipos y proyectores. El backend se construye con Django 5 y la base de datos principal es Firebase Firestore. La autenticación se gestiona con Firebase Authentication.
+Aplicación de reservas académica desarrollada con Django y Firebase. Permite gestionar usuarios, recursos y reservas, además de mostrar métricas de uso desde un panel administrativo.
+
+El backend corre en `backend/` y puede desplegarse en Vercel usando un servidor Python serverless.
 
 ## Arquitectura
 
 - `backend/` - proyecto Django principal.
-- `firebase/` - configuración y servicios Firebase.
-- `usuarios/` - módulos de registro, login, perfil y gestión de usuarios.
-- `recursos/` - gestión CRUD de recursos.
-- `reservas/` - gestión CRUD de reservas y validaciones.
-- `dashboard/` - métricas y visualizaciones con Chart.js.
-- `templates/` - vistas HTML con Django Templates.
-- `static/` - CSS, JavaScript e imágenes.
+- `backend/reservas_app/` - configuración global de Django.
+- `backend/usuarios/` - gestión de usuarios, login, registro y perfil.
+- `backend/recursos/` - CRUD de recursos disponibles.
+- `backend/reservas/` - CRUD de reservas y validaciones.
+- `backend/dashboard/` - panel de métricas y estadísticas.
+- `backend/firebase/` - configuración de Firebase.
+- `backend/templates/` - vistas HTML de Django.
+- `backend/static/` - CSS, JS e imágenes.
+- `api/` - entrada serverless para Vercel.
+- `vercel.json` - configuración de despliegue en Vercel.
 
-## Tecnologías
+## Requisitos
 
-- Python 3.13+
-- Django 5+
-- Firebase Firestore
-- Firebase Authentication
-- HTML5, CSS3, JavaScript Vanilla
-- Chart.js
+- Python 3.13+ (se recomienda 3.14)
+- Git
+- Cuenta de Firebase con Firestore y Authentication configurados
+- Vercel para despliegue serverless (opcional)
 
-## Instalación
+## Configuración de variables de entorno
 
-1. Clonar el repositorio.
-2. Crear un entorno virtual:
+Copia `backend/.env.example` a `backend/.env` y completa los valores.
 
-```bash
-python3 -m venv venv
-source venv/bin/activate
+Variables clave:
+
+```env
+DJANGO_SECRET_KEY=tu_clave_segura
+DJANGO_DEBUG=1
+FIREBASE_API_KEY=tu_firebase_api_key
+FIREBASE_PROJECT_ID=tu_project_id
+FIREBASE_CREDENTIALS=/ruta/a/tu/serviceAccountKey.json
 ```
 
-3. Instalar dependencias:
+Si vas a usar PostgreSQL/Neon en producción, añade:
+
+```env
+DATABASE_URL=postgresql://user:password@host:port/dbname?sslmode=require
+```
+
+> En Vercel puedes inyectar `FIREBASE_CREDENTIALS_JSON` con el contenido completo del JSON si no quieres subir el archivo de credenciales.
+
+## Instalación local
+
+1. Clona el repositorio:
+
+```bash
+git clone https://github.com/samuelcr11/trabajo2.git
+cd trabajo2/backend
+```
+
+2. Crea el entorno virtual:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+3. Instala dependencias:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Configurar variables de entorno en `.env`.
+4. Crea `backend/.env` a partir de `backend/.env.example`.
 
-5. Ejecutar el servidor:
+5. Ejecuta migraciones y prueba el servidor:
 
 ```bash
-cd reservas_app/backend
-python manage.py runserver
+.venv/bin/python manage.py makemigrations
+.venv/bin/python manage.py migrate
+.venv/bin/python manage.py runserver
 ```
 
-## Configuración Firebase
+6. Visita `http://127.0.0.1:8000/`.
 
-1. Crear un proyecto en Firebase.
-2. Activar Authentication con Email/Password.
-3. Crear una colección `usuarios`, `recursos` y `reservas` en Firestore.
-4. Descargar el archivo de credenciales JSON de Firebase Admin.
-5. Colocar la ruta del archivo en la variable `FIREBASE_CREDENTIALS`.
+## Migraciones
 
-## Variables de entorno
+- Localmente: `python manage.py makemigrations` y `python manage.py migrate`
+- En producción, configura `DATABASE_URL` antes de desplegar para usar PostgreSQL.
 
-Configurar el archivo `.env` en la raíz de `reservas_app` con:
+> Si no se configura `DATABASE_URL`, el proyecto usa SQLite localmente.
 
-```env
-DJANGO_SECRET_KEY=tu_clave_segura
-DJANGO_DEBUG=1
-FIREBASE_API_KEY=tu_api_key_de_firebase
-FIREBASE_PROJECT_ID=tu_project_id
-FIREBASE_CREDENTIALS=/ruta/a/tu/serviceAccountKey.json
-```
+## Firebase
+
+Este proyecto usa Firebase para autenticación y Firestore. Para que funcione debes:
+
+- Activar Authentication con Email/Password.
+- Crear la base de datos Firestore.
+- Obtener el archivo de credenciales JSON de Firebase Admin.
+- Configurar `FIREBASE_CREDENTIALS` o `FIREBASE_CREDENTIALS_JSON`.
+
+### Colecciones esperadas
+
+- `usuarios`
+- `recursos`
+- `reservas`
 
 ## Despliegue en Vercel
 
-El proyecto incluye `vercel.json` para preparación de despliegue en Vercel. En Vercel se deben configurar las mismas variables de entorno con secretos.
+El despliegue usa `vercel.json` configurado para Python serverless con `api/index.py`.
 
-## Estructura del proyecto
+- `buildCommand`: instala dependencias en `backend` y ejecuta `collectstatic`.
+- `api/index.py`: entrada WSGI para Vercel.
+- `api/requirements.txt`: dependencias de la función de Vercel.
+
+### Ajuste de compatibilidad
+
+Para compatibilidad con Vercel, `psycopg[binary]` queda fijado en `3.3.4` en:
+
+- `backend/requirements.txt`
+- `api/requirements.txt`
+
+### Configurar en Vercel
+
+Agrega los siguientes secretos/env vars en el panel de Vercel:
+
+- `DJANGO_SECRET_KEY`
+- `DJANGO_DEBUG=0`
+- `FIREBASE_API_KEY`
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CREDENTIALS_JSON` o `FIREBASE_CREDENTIALS`
+- `DATABASE_URL` (para PostgreSQL/Neon)
+
+## Estructura de archivos importante
 
 ```
-reservas_app/
-├── backend/
-│   ├── reservas_app/
-│   ├── usuarios/
-│   ├── recursos/
-│   ├── reservas/
-│   ├── dashboard/
-│   ├── templates/
-│   ├── static/
-│   └── firebase/
-├── requirements.txt
+trabajo2/
 ├── README.md
-└── .env
+├── vercel.json
+├── api/
+│   ├── index.py
+│   └── requirements.txt
+└── backend/
+    ├── .env.example
+    ├── requirements.txt
+    ├── reservas_app/
+    │   ├── settings.py
+    │   ├── urls.py
+    │   └── wsgi.py
+    ├── usuarios/
+    ├── recursos/
+    ├── reservas/
+    ├── dashboard/
+    ├── templates/
+    ├── static/
+    └── firebase/
 ```
 
-## Notas de seguridad
+## Flujo de uso
 
-- Se usa CSRF de Django.
-- Control de acceso por sesión y roles.
-- Validaciones en formularios y lógica de reserva.
-- Se recomienda deshabilitar `DEBUG` en producción.
+1. Registrar usuario nuevo.
+2. Iniciar sesión con email y contraseña.
+3. Crear o consultar recursos.
+4. Gestionar reservas desde el panel.
+5. Visualizar métricas en el dashboard.
 
-## Guía de uso
+## Problemas y soluciones comunes
 
-### 1) Preparación rápida
+- `No module named 'django'`: activa el entorno virtual e instala dependencias.
+- `psycopg[binary]>=3.4` en Vercel: usa `psycopg[binary]==3.3.4`.
+- `DEBUG=False` y estilos no cargan: ejecuta `python manage.py collectstatic --noinput`.
+- Errores de Firebase: revisa `FIREBASE_PROJECT_ID`, `FIREBASE_API_KEY`, `FIREBASE_CREDENTIALS` y la configuración de Firestore.
 
-- Asegúrate de tener las variables en `backend/.env` correctamente configuradas y que el archivo de credenciales JSON de Firebase esté accesible.
-- Inicia el entorno y el servidor:
+## Buenas prácticas
 
-```bash
-cd reservas_app/backend
-source ./venv/bin/activate
-python manage.py runserver
-```
+- No commitees credenciales ni `backend/.env`.
+- Usa `DEBUG=0` y `ALLOWED_HOSTS` apropiados en producción.
+- Mantén `requirements.txt` sincronizado entre `backend` y `api`.
+- Usa PostgreSQL/Neon en producción; no SQLite en Vercel.
 
-### 2) Registro y acceso (usuario)
+## Notas finales
 
-- Abrir `http://127.0.0.1:8000/`.
-- Click en `Registro` para crear una cuenta (nombre, email, contraseña, rol).
-- Luego `Iniciar Sesión` con el email y contraseña.
-- Desde el menú: `Reservas` → `Nueva reserva` para crear reservas.
-- `Historial` muestra las reservas propias.
-- Para recuperar contraseña usar `Recuperar contraseña`.
+Este README centraliza la configuración del proyecto, el flujo de desarrollo local, el despliegue en Vercel y los valores de entorno necesarios.
 
-### 3) Operaciones (administrador)
-
-- Con rol `administrador` en el panel podrás:
-  - `Recursos` → Crear / Editar / Eliminar recursos.
-  - `Reservas` → Ver todas las reservas y filtrar por usuario o fecha.
-  - `Dashboard` → Ver estadísticas y recursos más utilizados.
-  - Ver historial de cualquier usuario: en la tabla `Reservas`, click en el email del usuario (en la columna `Usuario`) para abrir su historial.
-
-### 4) Comprobaciones y solución de problemas
-
-- Si al usar el sistema ves errores relacionados con Firebase:
-  - Verifica en Firebase Console que **Authentication** (Email/Password) esté activo.
-  - Verifica que **Cloud Firestore** esté creado y la API habilitada en Google Cloud Console.
-  - Revisa `backend/.env` para `FIREBASE_API_KEY`, `FIREBASE_PROJECT_ID`, `FIREBASE_CREDENTIALS`.
-
-- Probar autenticación desde consola (útil para debugging):
-
-```bash
-cd reservas_app/backend
-DJANGO_SETTINGS_MODULE=reservas_app.settings ./venv/bin/python - <<'PY'
-from usuarios.services import authenticate_user
-try:
-    print(authenticate_user('tu_email','tu_contraseña'))
-except Exception as e:
-    print('ERROR:', e)
-PY
-```
-
-### 5) Buenas prácticas
-
-- No subas al repositorio el archivo de credenciales JSON.
-- Usa `DEBUG=0` en producción y configura `ALLOWED_HOSTS` correctamente.
-- Revisa logs del servidor para errores y excepciones.
-
----
-
-Si quieres, puedo agregar una página de ayuda dentro de la aplicación (`/ayuda/`) con estos pasos y capturas de pantalla.
+Si necesitas, puedo añadir una sección con ejemplos de rutas disponibles o una guía de endpoints REST adicionales.
